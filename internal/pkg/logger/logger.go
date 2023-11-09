@@ -1,7 +1,8 @@
 package logger
 
 import (
-	"github.com/test_service/pkg/logger"
+	"test_service/pkg/logger"
+
 	"go.uber.org/zap"
 )
 

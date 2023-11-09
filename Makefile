@@ -3,7 +3,7 @@ CURRENT_DIR=$(shell pwd)
 -include .env
 
 PSQL_CONTAINER_NAME?=postgres_container
-PROJECT_NAME?=test_repo
+PROJECT_NAME?=test_service
 PSQL_URI?=postgres://postgres:postgres@localhost:5432/${PROJECT_NAME}?sslmode=disable
 
 TAG=latest
@@ -26,7 +26,9 @@ dropdb:
 
 .PHONY: migrate_up
 migrate_up:
-	goose -dir migrate/migrations postgres "${PSQL_URI}" up
+	goose -dir migrate/migrations postgres "postgres://postgres:admin123@localhost:5434/test_service?sslmode=disable" up
+
+
 
 .PHONY: migrate_down
 migrate_down:

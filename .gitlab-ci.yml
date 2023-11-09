@@ -1,0 +1,44 @@
+before_script:
+  ## docker login
+  - docker login --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD
+  - apk add make  
+
+stages:
+  - build
+  - deploy  
+
+build_image_test:
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  tags: 
+    - backend  
+  stage: build
+  script:
+    - make build_image TAG=$CI_PIPELINE_IID REGISTRY_NAME=$CI_REGISTRY
+    - make push_image TAG=$CI_PIPELINE_IID REGISTRY_NAME=$CI_REGISTRY
+  only:
+    - main    
+
+deploy_image_test:
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  tags:
+    - backend
+  stage: deploy
+  before_script:
+    - mkdir -p ~/.ssh
+    - touch ~/.ssh/known_hosts
+    - echo "${TEST_SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+    - chmod 0400 ~/.ssh/id_rsa
+    - ssh-keyscan -t rsa $TEST_HOSTNAME >> ~/.ssh/known_hosts
+    - chmod 400 $TEST_SSH_PRIVATE_KEY
+  script:      
+    - ssh -o StrictHostKeyChecking=no -i $TEST_SSH_PRIVATE_KEY $USER@$TEST_HOSTNAME
+      "helm upgrade --install $DEPLOYMENT $HELM_REPO --values $HELM_REPO/values-test.yaml --set image.tag=$CI_PIPELINE_IID"
+  only:
+     - main    
+
+  
+

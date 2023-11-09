@@ -1,0 +1,18 @@
+project:
+  name: &project_name "test_service"
+  version: &version "0.0.1"
+  timeout: 3s
+  swagger_enabled: true
+  cache_timeout: 30m
+logging:
+  level: debug
+  log_first_n: 3
+  log_there_after: 10
+  log_interval: 1s
+  project_name: *project_name
+http:
+  host: 127.0.0.1
+  port: 8080
+grpc:
+  host: localhost
+  port: 60000

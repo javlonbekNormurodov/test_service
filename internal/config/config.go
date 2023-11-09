@@ -7,10 +7,11 @@ import (
 	"os"
 	"time"
 
+	logging "test_service/internal/pkg/logger"
+	"test_service/pkg/logger"
+
 	"github.com/caarlos0/env/v9"
 	"github.com/joho/godotenv"
-	logging "github.com/test_service/internal/pkg/logger"
-	"github.com/test_service/pkg/logger"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
 )

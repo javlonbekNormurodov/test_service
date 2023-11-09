@@ -1,0 +1,129 @@
+version: "2"
+
+overrides:
+  go:
+    overrides:
+      - go_type: "string"
+        db_type: "uuid"
+      - db_type: "pg_catalog.timestamp"
+        engine: "postgresql"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          package: "zero"
+          type: "Time"
+      - db_type: "date"
+        engine: "postgresql"
+        nullable: true
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          package: "zero"
+          type: "Time"
+      - db_type: "pg_catalog.varchar"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "uuid"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "text"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "pg_catalog.bool"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "Bool"
+          package: "zero"
+        nullable: true
+      - db_type: "pg_catalog.float8"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "Float"
+          package: "zero"
+        nullable: true
+      - db_type: "pg_catalog.int4"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "Int"
+          package: "zero"
+        nullable: true
+      - db_type: "pg_catalog.int8"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "Int"
+          package: "zero"
+        nullable: true
+      - db_type: "double precision"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "Float"
+          package: "zero"
+        nullable: true
+      - db_type: "profile_status"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "compliance_status"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "formula_status"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "prohibited_group"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "prohibited_group"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "group_type"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "months_enum"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+      - db_type: "currency"
+        go_type:
+          import: "gopkg.in/guregu/null.v4/zero"
+          type: "String"
+          package: "zero"
+        nullable: true
+sql:
+  - engine: "postgresql"
+    queries: "./internal/core/repository/psql/query"
+    schema: "./migrate/migrations"
+    gen:
+      go:
+        package: "sqlc"
+        out: "./internal/core/repository/psql/sqlc"
+        sql_package: "pgx/v4"
+        emit_interface: true
+        emit_json_tags: true
+        emit_prepared_queries: true

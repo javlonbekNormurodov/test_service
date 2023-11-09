@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: test_service
+    ports:
+      - "5434:5434"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
