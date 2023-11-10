@@ -7,7 +7,46 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
+	"time"
 )
+
+const createIntegration = `-- name: CreateIntegration :exec
+INSERT INTO integrations (name, created_at, updated_at, deleted_at)
+VALUES ($1, NOW(), NOW(), NULL)
+RETURNING id, name, created_at, updated_at, deleted_at
+`
+
+func (q *Queries) CreateIntegration(ctx context.Context, name string) error {
+	_, err := q.db.Exec(ctx, createIntegration, name)
+	return err
+}
+
+const deleteIntegration = `-- name: DeleteIntegration :exec
+UPDATE integrations SET deleted_at = current_timestamp WHERE id = $1
+`
+
+func (q *Queries) DeleteIntegration(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, deleteIntegration, id)
+	return err
+}
+
+const getIntegrationById = `-- name: GetIntegrationById :one
+SELECT id, name, created_at, updated_at, deleted_at FROM integrations where id = $1
+`
+
+func (q *Queries) GetIntegrationById(ctx context.Context, id string) (Integration, error) {
+	row := q.db.QueryRow(ctx, getIntegrationById, id)
+	var i Integration
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
 
 const listIntegrations = `-- name: ListIntegrations :many
 SELECT id, name, created_at, updated_at, deleted_at FROM integrations
@@ -37,4 +76,25 @@ func (q *Queries) ListIntegrations(ctx context.Context) ([]Integration, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateIntegration = `-- name: UpdateIntegration :exec
+UPDATE integrations SET name = $1, created_at = $2, updated_at = current_timestamp, deleted_at = $3 WHERE id = $4
+`
+
+type UpdateIntegrationParams struct {
+	Name      string       `json:"name"`
+	CreatedAt time.Time    `json:"created_at"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+	ID        string       `json:"id"`
+}
+
+func (q *Queries) UpdateIntegration(ctx context.Context, arg UpdateIntegrationParams) error {
+	_, err := q.db.Exec(ctx, updateIntegration,
+		arg.Name,
+		arg.CreatedAt,
+		arg.DeletedAt,
+		arg.ID,
+	)
+	return err
 }
