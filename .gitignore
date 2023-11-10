@@ -1,0 +1,12 @@
+.gitsecret/keys/random_seed
+!*.secret
+
+*.exe
+
+*.test
+
+*.out
+
+.env
+
+go.work

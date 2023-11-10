@@ -13,7 +13,7 @@ import (
 	"github.com/caarlos0/env/v9"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type AppMode string

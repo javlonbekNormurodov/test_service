@@ -4,8 +4,12 @@
 
 package sqlc
 
+import (
+	"context"
+)
 
 type Querier interface {
+	ListIntegrations(ctx context.Context) ([]Integration, error)
 }
 
 var _ Querier = (*Queries)(nil)
