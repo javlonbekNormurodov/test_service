@@ -11,14 +11,14 @@
     "application/json"
   ],
   "paths": {
-    "/api/v1/integration": {
+    "/v1/api/integration": {
       "get": {
         "operationId": "Integration_GetIntegrationsList",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/integrationsFullResponse"
+              "$ref": "#/definitions/integrationsGetListResponse"
             }
           },
           "default": {
@@ -46,7 +46,7 @@
         ]
       },
       "post": {
-        "operationId": "Integration_Create",
+        "operationId": "Integration_CreateIntegration",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -73,7 +73,7 @@
         ]
       }
     },
-    "/api/v1/integration/{id}": {
+    "/v1/api/integration/{id}": {
       "get": {
         "operationId": "Integration_GetIntegrationById",
         "responses": {
@@ -125,7 +125,7 @@
         ]
       },
       "put": {
-        "operationId": "Integration_Update",
+        "operationId": "Integration_UpdateIntegration",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -191,6 +191,18 @@
         },
         "deletedAt": {
           "type": "string"
+        }
+      }
+    },
+    "integrationsGetListResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/integrationsFullResponse"
+          }
         }
       }
     },

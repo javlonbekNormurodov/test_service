@@ -7,19 +7,25 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
-	"time"
 )
 
-const createIntegration = `-- name: CreateIntegration :exec
+const createIntegration = `-- name: CreateIntegration :one
 INSERT INTO integrations (name, created_at, updated_at, deleted_at)
 VALUES ($1, NOW(), NOW(), NULL)
 RETURNING id, name, created_at, updated_at, deleted_at
 `
 
-func (q *Queries) CreateIntegration(ctx context.Context, name string) error {
-	_, err := q.db.Exec(ctx, createIntegration, name)
-	return err
+func (q *Queries) CreateIntegration(ctx context.Context, name string) (Integration, error) {
+	row := q.db.QueryRow(ctx, createIntegration, name)
+	var i Integration
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const deleteIntegration = `-- name: DeleteIntegration :exec
@@ -78,23 +84,24 @@ func (q *Queries) ListIntegrations(ctx context.Context) ([]Integration, error) {
 	return items, nil
 }
 
-const updateIntegration = `-- name: UpdateIntegration :exec
-UPDATE integrations SET name = $1, created_at = $2, updated_at = current_timestamp, deleted_at = $3 WHERE id = $4
+const updateIntegration = `-- name: UpdateIntegration :one
+UPDATE integrations SET name = $1,updated_at = current_timestamp, deleted_at = NULL WHERE id = $2 RETURNING id, name, created_at, updated_at, deleted_at
 `
 
 type UpdateIntegrationParams struct {
-	Name      string       `json:"name"`
-	CreatedAt time.Time    `json:"created_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
-	ID        string       `json:"id"`
+	Name string `json:"name"`
+	ID   string `json:"id"`
 }
 
-func (q *Queries) UpdateIntegration(ctx context.Context, arg UpdateIntegrationParams) error {
-	_, err := q.db.Exec(ctx, updateIntegration,
-		arg.Name,
-		arg.CreatedAt,
-		arg.DeletedAt,
-		arg.ID,
+func (q *Queries) UpdateIntegration(ctx context.Context, arg UpdateIntegrationParams) (Integration, error) {
+	row := q.db.QueryRow(ctx, updateIntegration, arg.Name, arg.ID)
+	var i Integration
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
-	return err
+	return i, err
 }

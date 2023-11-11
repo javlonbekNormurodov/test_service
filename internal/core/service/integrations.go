@@ -2,11 +2,22 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 
 	integration_service "test_service/generated/integrations"
 	"test_service/internal/core/repository"
+	"test_service/internal/core/repository/psql/sqlc"
+	"test_service/internal/pkg/logger"
+
+	"go.uber.org/zap"
 )
+
+type IntegrationSService interface {
+	CreateIntegration(ctx context.Context, req *integration_service.CreateRequest) (*integration_service.FullResponse, error)
+	GetIntegrationsList(ctx context.Context, req *integration_service.GetListRequest) ([]*integration_service.GetListResponse, error)
+	GetIntegrationById(ctx context.Context, req *integration_service.GetByIDRequest) (*integration_service.FullResponse, error)
+	UpdateIntegration(ctx context.Context, req *integration_service.UpdateRequest) (*integration_service.FullResponse, error)
+	DeleteIntegration(ctx context.Context, req *integration_service.DeleteRequest) error
+}
 
 type integrationService struct {
 	store repository.Store
@@ -20,55 +31,76 @@ func NewIntegrationService(store repository.Store) integration_service.Integrati
 }
 
 func (s *integrationService) CreateIntegration(ctx context.Context, req *integration_service.CreateRequest) (*integration_service.FullResponse, error) {
-	err := s.store.CreateIntegration(ctx, req.Name)
+	res, err := s.store.CreateIntegration(ctx, req.Name)
 	if err != nil {
+		logger.Log.Error("failed while creating integration: ", zap.Error(err))
 		return nil, err
 	}
 
-	return &integration_service.FullResponse{}, nil
+	return mapIntegrationToFullResponse(&res), nil
 }
 
-func (s *integrationService) GetIntegrationsList(ctx context.Context, req *integration_service.GetListRequest) (*integration_service.FullResponse, error) {
-	var (
-		resp            = integration_service.FullResponse{}
-		integrationList []*integration_service.FullResponse
-	)
-
+func (s *integrationService) GetIntegrationsList(ctx context.Context, req *integration_service.GetListRequest) ([]*integration_service.GetListResponse, error) {
 	integrations, err := s.store.ListIntegrations(ctx)
 	if err != nil {
+		logger.Log.Error("failed while getting list of integrations: ", zap.Error(err))
 		return nil, err
 	}
 
-	bytes, err := json.Marshal(integrations)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(bytes, &integrationList); err != nil {
-		return nil, err
-	}
-
-	return &integration_service.FullResponse{
-		Id:        resp.Id,
-		Name:      resp.Name,
-		CreatedAt: resp.CreatedAt,
-		UpdatedAt: resp.UpdatedAt,
-		DeletedAt: resp.DeletedAt,
-	}, nil
+	getList := mapIntegrationListToFullResponse(integrations)
+	return getList, nil
 }
 
 func (s *integrationService) GetIntegrationById(ctx context.Context, req *integration_service.GetByIDRequest) (*integration_service.FullResponse, error) {
-
-	integrations, err := s.store.GetIntegrationById(ctx, req.Id)
+	integration, err := s.store.GetIntegrationById(ctx, req.Id)
 	if err != nil {
+		logger.Log.Error("failed while getting integration by id: ", zap.Error(err))
 		return nil, err
 	}
 
+	return mapIntegrationToFullResponse(&integration), nil
+}
+
+func (s *integrationService) UpdateIntegration(ctx context.Context, req *integration_service.UpdateRequest) (*integration_service.FullResponse, error) {
+	params := sqlc.UpdateIntegrationParams{
+		ID:   req.Id,
+		Name: req.Name,
+	}
+
+	integration, err := s.store.UpdateIntegration(ctx, params)
+	if err != nil {
+		logger.Log.Error("failed while updating integration: ", zap.Error(err))
+		return nil, err
+	}
+
+	return mapIntegrationToFullResponse(&integration), nil
+}
+
+func (s *integrationService) DeleteIntegration(ctx context.Context, req *integration_service.DeleteRequest) error {
+	return s.store.DeleteIntegration(ctx, req.Id)
+}
+
+func mapIntegrationToFullResponse(i *sqlc.Integration) *integration_service.FullResponse {
 	return &integration_service.FullResponse{
-		Id:        integrations.ID,
-		Name:      integrations.Name,
-		CreatedAt: integrations.CreatedAt.String(),
-		UpdatedAt: integrations.UpdatedAt.String(),
-		DeletedAt: integrations.DeletedAt.Time.String(),
-	}, nil
+		Id:        i.ID,
+		Name:      i.Name,
+		CreatedAt: i.CreatedAt.String(),
+		UpdatedAt: i.UpdatedAt.String(),
+		DeletedAt: i.DeletedAt.Time.String(),
+	}
+}
+
+func mapIntegrationListToFullResponse(integrations []sqlc.Integration) []*integration_service.GetListResponse {
+
+	var (
+		result []*integration_service.GetListResponse
+		resp   []*integration_service.FullResponse
+	)
+	for _, i := range integrations {
+		resp = append(resp, mapIntegrationToFullResponse(&i))
+		result = append(result, &integration_service.GetListResponse{
+			Response: resp,
+		})
+	}
+	return result
 }

@@ -36,6 +36,10 @@ message GetByIDRequest {
     string id = 1;
 }
 
+message GetListResponse {
+    repeated FullResponse response = 1;
+}
+
 
 message GetListRequest {
     int32 limit   = 1;
@@ -57,30 +61,30 @@ message DeleteResponse {
 }
 
 service Integration {
-    rpc Create(CreateRequest) returns (FullResponse) {
+    rpc CreateIntegration(CreateRequest) returns (FullResponse) {
         option (google.api.http) = {
-            post: "/api/v1/integration",
+            post: "/v1/api/integration",
             body: "*"
         };
     }
-    rpc GetIntegrationsList(GetListRequest) returns (FullResponse) {
+    rpc GetIntegrationsList(GetListRequest) returns (GetListResponse) {
         option (google.api.http) = {
-            get: "/api/v1/integration",
+            get: "/v1/api/integration",
         };
     }
     rpc GetIntegrationById(GetByIDRequest) returns (FullResponse) {
         option (google.api.http) = {
-            get: "/api/v1/integration/{id}",
+            get: "/v1/api/integration/{id}",
         };
     }
-    rpc Update(UpdateRequest) returns (FullResponse) {
+    rpc UpdateIntegration(UpdateRequest) returns (FullResponse) {
         option (google.api.http) = {
-            put: "/api/v1/integration/{id}",
+            put: "/v1/api/integration/{id}",
         };
     }
     rpc Delete(DeleteRequest) returns (DeleteResponse) {
         option (google.api.http) = {
-            delete: "/api/v1/integration/{id}",
+            delete: "/v1/api/integration/{id}",
         };
     }
 }
