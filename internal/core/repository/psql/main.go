@@ -7,6 +7,8 @@ import (
 	"test_service/internal/core/repository/psql/sqlc"
 	"test_service/internal/pkg/logger"
 
+	integration_service "test_service/generated/integrations"
+
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.uber.org/zap"
 )
@@ -33,4 +35,12 @@ func NewStore(ctx context.Context, psqlUri string) *SQLStore {
 		DB:      dbConn,
 		Queries: sqlc.New(dbConn),
 	}
+}
+
+type IntegrationSService interface {
+	CreateIntegration(ctx context.Context, req *integration_service.CreateRequest) (*integration_service.FullResponse, error)
+	GetIntegrationsList(ctx context.Context, req *integration_service.GetListRequest) ([]*integration_service.GetListResponse, error)
+	GetIntegrationById(ctx context.Context, req *integration_service.GetByIDRequest) (*integration_service.FullResponse, error)
+	UpdateIntegration(ctx context.Context, req *integration_service.UpdateRequest) (*integration_service.FullResponse, error)
+	DeleteIntegration(ctx context.Context, req *integration_service.DeleteRequest) error
 }

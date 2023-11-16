@@ -5,14 +5,15 @@
 package sqlc
 
 import (
-	"database/sql"
 	"time"
+
+	zero "gopkg.in/guregu/null.v4/zero"
 )
 
 type Integration struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt zero.Time `json:"deleted_at"`
 }
